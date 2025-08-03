@@ -22,12 +22,10 @@ type UpdateTaskRequest struct {
 	EndDate   time.Time `json:"end_date"`
 }
 
-// GetTasks retrieves all tasks for the authenticated user
+// GetTasks retrieves all tasks (no user filtering)
 func GetTasks(c *fiber.Ctx) error {
-	user := c.Locals("user").(models.User)
-
 	var tasks []models.Task
-	if err := database.DB.Where("user_id = ?", user.ID).Find(&tasks).Error; err != nil {
+	if err := database.DB.Find(&tasks).Error; err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "Failed to retrieve tasks",
 		})
@@ -38,9 +36,8 @@ func GetTasks(c *fiber.Ctx) error {
 	})
 }
 
-// GetTask retrieves a specific task by ID for the authenticated user
+// GetTask retrieves a specific task by ID (open to all users)
 func GetTask(c *fiber.Ctx) error {
-	user := c.Locals("user").(models.User)
 	taskID := c.Params("id")
 
 	taskUUID, err := uuid.Parse(taskID)
@@ -51,7 +48,7 @@ func GetTask(c *fiber.Ctx) error {
 	}
 
 	var task models.Task
-	if err := database.DB.Where("id = ? AND user_id = ?", taskUUID, user.ID).First(&task).Error; err != nil {
+	if err := database.DB.First(&task, "id = ?", taskUUID).Error; err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": "Task not found",
 		})
@@ -94,9 +91,8 @@ func CreateTask(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(task)
 }
 
-// UpdateTask updates an existing task for the authenticated user
+// UpdateTask updates an existing task (open to all users)
 func UpdateTask(c *fiber.Ctx) error {
-	user := c.Locals("user").(models.User)
 	taskID := c.Params("id")
 
 	taskUUID, err := uuid.Parse(taskID)
@@ -107,7 +103,7 @@ func UpdateTask(c *fiber.Ctx) error {
 	}
 
 	var task models.Task
-	if err := database.DB.Where("id = ? AND user_id = ?", taskUUID, user.ID).First(&task).Error; err != nil {
+	if err := database.DB.Where("id = ?", taskUUID).First(&task).Error; err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": "Task not found",
 		})
@@ -147,9 +143,8 @@ func UpdateTask(c *fiber.Ctx) error {
 	return c.JSON(task)
 }
 
-// DeleteTask deletes a task for the authenticated user
+// DeleteTask deletes a task (open to all users)
 func DeleteTask(c *fiber.Ctx) error {
-	user := c.Locals("user").(models.User)
 	taskID := c.Params("id")
 
 	taskUUID, err := uuid.Parse(taskID)
@@ -160,7 +155,7 @@ func DeleteTask(c *fiber.Ctx) error {
 	}
 
 	var task models.Task
-	if err := database.DB.Where("id = ? AND user_id = ?", taskUUID, user.ID).First(&task).Error; err != nil {
+	if err := database.DB.Where("id = ?", taskUUID).First(&task).Error; err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": "Task not found",
 		})

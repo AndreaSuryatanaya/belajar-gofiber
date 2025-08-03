@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"belajar-go-fiber/database"
 	"belajar-go-fiber/handlers"
@@ -36,10 +37,23 @@ func main() {
 
 	// Middleware
 	app.Use(logger.New())
+
+	// Enhanced CORS configuration for React Vite development and production
+	allowedOrigins := os.Getenv("ALLOWED_ORIGINS")
+	if allowedOrigins == "" {
+		// For development, allow all origins temporarily
+		allowedOrigins = "*"
+	}
+
+	// log.Printf("CORS allowed origins: %s", allowedOrigins)
+
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: "*",
-		AllowMethods: "GET,POST,HEAD,PUT,DELETE,PATCH",
-		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
+		AllowOrigins:     allowedOrigins,
+		AllowMethods:     "GET,POST,HEAD,PUT,DELETE,PATCH,OPTIONS",
+		AllowHeaders:     "Origin,Content-Type,Accept,Authorization,X-Requested-With,Access-Control-Allow-Origin",
+		AllowCredentials: false, // Set to false when using "*" for origins
+		ExposeHeaders:    "Content-Length,Authorization",
+		MaxAge:           86400, // 24 hours
 	}))
 
 	// Health check route
@@ -60,6 +74,7 @@ func main() {
 
 	// Protected routes (require authentication)
 	protected := api.Group("/", middleware.JWTProtected())
+	// protected := api.Group("/")
 
 	// Task routes
 	tasks := protected.Group("/tasks")
