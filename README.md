@@ -170,45 +170,6 @@ If no environment variables are provided, the application will use default value
 
 The application uses PostgreSQL database. Make sure you have PostgreSQL installed and running, and create a database before running the application. The tables will be created automatically when you run the application for the first time through GORM's auto-migration feature.
 
-### Option 1: Local PostgreSQL Installation
-
-1. Install PostgreSQL on your system
-2. Create a database named `tasks_db`
-3. Update the `.env` file with your credentials
-
-### Option 2: Using Docker Compose (Recommended)
-
-For easy setup, you can use the provided Docker Compose file:
-
-```bash
-# Start PostgreSQL and Adminer (database admin UI)
-docker-compose up -d
-
-# Stop the services
-docker-compose down
-```
-
-This will start:
-
--   PostgreSQL on port 5432
--   Adminer (database admin UI) on port 8080
-
-You can access Adminer at `http://localhost:8080` with these credentials:
-
--   System: PostgreSQL
--   Server: postgres
--   Username: postgres
--   Password: password
--   Database: tasks_db
-
-### Option 3: Using the Setup Script
-
-Run the provided setup script:
-
-```bash
-./setup_db.sh
-```
-
 ## Testing the API
 
 You can test the API using curl, Postman, or any HTTP client:
